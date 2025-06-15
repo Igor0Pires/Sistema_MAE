@@ -1,0 +1,13 @@
+[theme]
+base="light"
+backgroundColor="white"
+secondaryBackgroundColor="#171717"
+codeBackgroundColor="powderBlue"
+borderColor="#888888" 
+showWidgetBorder=false
+font="system-ui"
+
+[theme.sidebar]
+backgroundColor="#FBFBFB"
+secondaryBackgroundColor="#171717"
+showWidgetBorder=true
