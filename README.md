@@ -18,7 +18,7 @@ Bem-vindo ao repositório do **Sistema MAE**!
 
 1. Clone o repositório:
     ```bash
-    git clone https://github.com/seu-usuario/Sistema_MAE.git
+    git clone https://github.com/Igor0Pires/Sistema_MAE.git
     ```
 2. Instale as dependências (crie uma venv antes):
     ```bash
