@@ -477,7 +477,7 @@ def registrar_membro_faz_trilha(id_key_google_sheets, cliente, id_membro, id_tri
     aba.clear()
     set_with_dataframe(aba, df, include_index=False)
 
-def registrar_membro(id_key_google_sheets, cliente, nome, email, conta_github='', conta_datacamp='', xp_datacamp='', ativo=1):
+def registrar_membro(id_key_google_sheets, cliente, nome, email, tipo_ingresso, conta_github='', conta_datacamp='', xp_datacamp='', ativo=1):
     """
     Registra um novo membro da Feadev na planilha Google na aba 'membros_feadev'.
 
@@ -496,6 +496,10 @@ def registrar_membro(id_key_google_sheets, cliente, nome, email, conta_github=''
 
     email : str
         E-mail do membro.
+
+    tipo_ingresso : str, 2 letras maiusculas (tipo de processo) e 2 números (ano)
+        PS - Processo Seletivo
+        PY - curso de PYthon
 
     conta_github : str, opcional
         Nome de usuário no GitHub.
@@ -521,10 +525,10 @@ def registrar_membro(id_key_google_sheets, cliente, nome, email, conta_github=''
         aba = planilha.worksheet('membros_feadev')
         df_membros = get_as_dataframe(aba).dropna(how='all')
     except:
-        aba = planilha.add_worksheet(title='membros_feadev', rows='100', cols='7')
+        aba = planilha.add_worksheet(title='membros_feadev', rows='100', cols='8')
         df_membros = pd.DataFrame(columns=[
             'id_membro', 'nome', 'email', 'conta_github',
-            'conta_datacamp', 'xp_datacamp', 'ativo'
+            'conta_datacamp', 'xp_datacamp', 'ativo', 'tipo_ingresso'
         ])
 
     # Garante que os IDs sejam inteiros
@@ -541,7 +545,8 @@ def registrar_membro(id_key_google_sheets, cliente, nome, email, conta_github=''
         'conta_github': conta_github,
         'conta_datacamp': conta_datacamp,
         'xp_datacamp': xp_datacamp,
-        'ativo': ativo
+        'ativo': ativo,
+        'tipo_ingresso': tipo_ingresso
     }])
 
     # Adiciona e salva
