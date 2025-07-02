@@ -315,7 +315,7 @@ def registrar_participacao_evento(id_key_google_sheets, cliente, id_membro, id_e
     set_with_dataframe(aba, df_participacoes, include_index=False)
 
 #Essa função cria se necessário e atualiza o registro caso já exista
-def registrar_membro_faz_curso(id_key_google_sheets, cliente, id_membro, id_curso, data_inicio, data_fim, finalizado=0):
+def registrar_membro_faz_curso(id_key_google_sheets, cliente, id_membro, id_curso, data_inicio='', data_fim='', finalizado=0):
     """
     Registra que um membro da Feadev iniciou ou finalizou um curso.
 
@@ -367,9 +367,9 @@ def registrar_membro_faz_curso(id_key_google_sheets, cliente, id_membro, id_curs
 
     # Converte as datas para datetime (caso venham como string)
     if isinstance(data_inicio, str):
-        data_inicio = datetime.fromisoformat(data_inicio)
+        data_inicio = pd.to_datetime(data_inicio)
     if isinstance(data_fim, str):
-        data_fim = datetime.fromisoformat(data_fim)
+        data_fim = pd.to_datetime(data_fim)
 
     # Verifica se já existe esse registro
     existe = (
@@ -397,7 +397,7 @@ def registrar_membro_faz_curso(id_key_google_sheets, cliente, id_membro, id_curs
     set_with_dataframe(aba, df, include_index=False)
 
 #Essa função cria se necessário e atualiza o registro caso já exista
-def registrar_membro_faz_trilha(id_key_google_sheets, cliente, id_membro, id_trilha, data_inicio, data_fim, finalizado=0):
+def registrar_membro_faz_trilha(id_key_google_sheets, cliente, id_membro, id_trilha, data_inicio='', data_fim='', finalizado=0):
     """
     Registra que um membro da Feadev iniciou ou finalizou uma trilha.
 
@@ -449,9 +449,9 @@ def registrar_membro_faz_trilha(id_key_google_sheets, cliente, id_membro, id_tri
 
     # Converte as datas para datetime (caso venham como string)
     if isinstance(data_inicio, str):
-        data_inicio = datetime.fromisoformat(data_inicio)
+        data_inicio = pd.to_datetime(data_inicio)
     if isinstance(data_fim, str):
-        data_fim = datetime.fromisoformat(data_fim)
+        data_fim = pd.to_datetime(data_fim)
 
     # Verifica se já existe esse registro
     existe = (
