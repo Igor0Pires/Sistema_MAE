@@ -554,6 +554,30 @@ def registrar_membro(id_key_google_sheets, cliente, nome, email, tipo_ingresso, 
     aba.clear()
     set_with_dataframe(aba, df_membros, include_index=False)
 
+def excluir_membro(id_key_google_sheets, cliente, id_membro):
+    # Abre a planilha
+    planilha = cliente.open_by_key(id_key_google_sheets)
+
+    # Tenta abrir a aba ou cria uma nova se não existir
+    try:
+        aba = planilha.worksheet('membros_feadev')
+        df_membros = get_as_dataframe(aba).dropna(how='all')
+    except:
+        print('falha ao abrir aba da planilha')
+        raise ConnectionError
+    
+    # Garante que os IDs sejam inteiros
+    df_membros['id_membro'] = pd.to_numeric(df_membros['id_membro'], errors='coerce').fillna(-1).astype(int)
+    # Garante que IDs correspondam ao index
+    df_membros.set_index(df_membros['id_membro'], drop=False, inplace=True)
+    # exclui a linha referente ao membro
+    df_membros = df_membros.drop(index=id_membro, axis=0)
+    # salva
+    aba.clear()
+    set_with_dataframe(aba, df_membros, include_index=False)
+    print(f'membro {id_membro} removido')
+
+
 def registrar_evento(id_key_google_sheets, cliente, nome_evento, tipo_evento_id='', tipo_evento_nome='', descricao='', data_inicio='', data_fim=''):
     """
     Registra um novo evento da Feadev na aba 'eventos' da planilha Google.
