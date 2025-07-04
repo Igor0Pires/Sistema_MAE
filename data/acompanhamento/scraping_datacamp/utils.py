@@ -555,8 +555,54 @@ def registrar_membro(id_key_google_sheets, cliente, nome, email, tipo_ingresso, 
     aba.clear()
     set_with_dataframe(aba, df_membros, include_index=False)
 
-def atualizar_cadastro_membro(id_key_google_sheets, cliente, id_membro, nome='', email='', conta_github='', conta_datacamp='',
-       xp_datacamp='', ativo=1, tipo_ingresso=''):
+def atualizar_registro_membro(id_key_google_sheets, cliente, id_membro, nome='', email='', conta_github='', conta_datacamp='',
+       xp_datacamp='', ativo=1, tipo_ingresso='') -> None | Exception:
+    '''
+    Troca as informações atuais do membro de id fornecido pelas informações nos kwargs
+    Caso não exista a aba um erro é retornado
+
+    Criada com a ideia de corrigir eventuais erros passados a frente para a DB
+
+    Parâmetros:
+    -----------
+    id_key_google_sheets : str
+        ID da planilha Google Sheets.
+
+    cliente : gspread.Client
+        Cliente gspread autenticado.
+
+    id_membro : Int
+        ID do membro.
+
+    nome : str, opcional
+        Nome do membro.
+
+    email : str, opcional
+        E-mail do membro.
+
+    tipo_ingresso : str, opcional
+        2 letras maiusculas (tipo de processo) e 2 números (ano)
+        PS - Processo Seletivo
+        PY - curso de PYthon
+
+    conta_github : str, opcional
+        Nome de usuário no GitHub.
+
+    conta_datacamp : str, opcional
+        URL ou identificador da conta no DataCamp.
+
+    xp_datacamp : str, opcional
+        Experiência acumulada no DataCamp.
+
+    ativo : int, opcional (default=1)
+        Status do membro: 1 para ativo, 0 para inativo.
+
+    Retorno:
+    --------
+    None
+    """
+
+    '''
     # Abre a planilha
     planilha = cliente.open_by_key(id_key_google_sheets)
 
@@ -591,9 +637,27 @@ def atualizar_cadastro_membro(id_key_google_sheets, cliente, id_membro, nome='',
     # salva
     aba.clear()
     set_with_dataframe(aba, df_membros, include_index=False)
-    print(f'membro id {id_membro} modificado com sucesso')
+    # print(f'membro id {id_membro} modificado com sucesso')
 
-def excluir_membro(id_key_google_sheets, cliente, id_membro):
+def excluir_membro(id_key_google_sheets, cliente, id_membro) -> None | Exception:
+    '''
+    Remove o membro de mesmo ID e todas as suas menções na DB (falta implementar a remoção nas outras abas)
+
+    Parâmetros:
+    -----------
+    id_key_google_sheets : str
+        ID da planilha Google Sheets.
+
+    cliente : gspread.Client
+        Cliente gspread autenticado.
+
+    id_membro : Int
+        ID do membro a ser removido.
+
+    Retorno:
+    --------
+    None
+    '''
     # Abre a planilha
     planilha = cliente.open_by_key(id_key_google_sheets)
 
@@ -614,7 +678,7 @@ def excluir_membro(id_key_google_sheets, cliente, id_membro):
     # salva
     aba.clear()
     set_with_dataframe(aba, df_membros, include_index=False)
-    print(f'membro {id_membro} removido')
+    # print(f'membro {id_membro} removido')
 
 
 def registrar_evento(id_key_google_sheets, cliente, nome_evento, tipo_evento_id='', tipo_evento_nome='', descricao='', data_inicio='', data_fim=''):
