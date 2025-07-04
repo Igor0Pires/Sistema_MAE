@@ -5,6 +5,7 @@ import os
 import asyncio
 import nest_asyncio
 import random
+import numpy as np
 import pandas as pd
 from datetime import datetime
 import venv
@@ -553,6 +554,44 @@ def registrar_membro(id_key_google_sheets, cliente, nome, email, tipo_ingresso, 
     df_membros = pd.concat([df_membros, novo_membro], ignore_index=True)
     aba.clear()
     set_with_dataframe(aba, df_membros, include_index=False)
+
+def atualizar_cadastro_membro(id_key_google_sheets, cliente, id_membro, nome='', email='', conta_github='', conta_datacamp='',
+       xp_datacamp='', ativo=1, tipo_ingresso=''):
+    # Abre a planilha
+    planilha = cliente.open_by_key(id_key_google_sheets)
+
+    # Tenta abrir a aba ou cria uma nova se não existir
+    try:
+        aba = planilha.worksheet('membros_feadev')
+        df_membros = get_as_dataframe(aba).dropna(how='all')
+    except:
+        print('falha ao abrir aba da planilha')
+        raise ConnectionError
+    
+    # Garante que os IDs sejam inteiros
+    df_membros['id_membro'] = pd.to_numeric(df_membros['id_membro'], errors='coerce').fillna(-1).astype(int)
+    
+    cadastro_antigo = df_membros[df_membros['id_membro']==id_membro]
+    # cria a nova linha 
+    novo_cadastro = pd.DataFrame([{
+        'id_membro': int(id_membro),
+        'nome': nome if nome else cadastro_antigo['nome'].values[0],
+        'email': email if email else cadastro_antigo['email'].values[0],
+        'conta_github': conta_github if conta_github else cadastro_antigo['conta_github'].values[0],
+        'conta_datacamp': conta_datacamp if conta_datacamp else cadastro_antigo['conta_datacamp'].values[0],
+        'xp_datacamp': xp_datacamp if xp_datacamp else cadastro_antigo['xp_datacamp'].values[0],
+        'ativo': ativo if ativo!=1 else 1,
+        'tipo_ingresso': tipo_ingresso if tipo_ingresso else cadastro_antigo['tipo_ingresso'].values[0]
+    }])
+    novo_cadastro_ = np.copy(novo_cadastro)
+
+    # substitui a linha
+    df_membros[df_membros['id_membro']==id_membro] = novo_cadastro_
+
+    # salva
+    aba.clear()
+    set_with_dataframe(aba, df_membros, include_index=False)
+    print(f'membro id {id_membro} modificado com sucesso')
 
 def excluir_membro(id_key_google_sheets, cliente, id_membro):
     # Abre a planilha
