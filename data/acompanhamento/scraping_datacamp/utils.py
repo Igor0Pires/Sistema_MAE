@@ -102,18 +102,19 @@ def atualizar_trilhas_com_ids(trilhas_atualizadas_datacamp, maedev_df, col_nome_
 
     return maedev_df
 
-def atualizar_cursos_com_ids(cursos_atualizados_datacamp, maedev_df, col_nome_curso_atualizada="Curso", col_df_maedev=['id_curso', 'nome_curso', 'duracao', 'url']):
+def atualizar_cursos_com_ids(cursos_atualizados_datacamp, maedev_df, col_nome_curso_atualizada="Curso", col_df_maedev=['id_curso', 'nome_curso', 'duracao', 'url', 'xp_curso']):
     """
-    Adiciona novas trilhas únicas de `cursos_atualizados_datacamp` em `maedev_df`, com id incremental.
-    
+    Adiciona novos cursos únicos de `cursos_atualizados_datacamp` em `maedev_df`, com id incremental.
+
     Parâmetros:
         cursos_atualizados_datacamp (pd.DataFrame): DataFrame com os cursos e suas trilhas.
-        maedev_df (pd.DataFrame): DataFrame com trilhas já cadastradas.
-        col_nome_curso_atualizada (str): Nome da coluna no cursos_atualizados_datacamp que contém o nome das trilhas.
-        col_df_maedev (list): Lista com os nomes das colunas na ordem: [id, nome, url, tipo].
+        maedev_df (pd.DataFrame): DataFrame com cursos já cadastrados.
+        col_nome_curso_atualizada (str): Nome da coluna no DataFrame de atualização que contém os nomes dos cursos.
+        col_df_maedev (list): Lista com os nomes das colunas no DataFrame maedev, na ordem:
+                              [id_curso, nome_curso, duracao, url, xp_curso]
 
     Retorna:
-        pd.DataFrame: O DataFrame `maedev_df` atualizado com novas trilhas e IDs únicos.
+        pd.DataFrame: O DataFrame `maedev_df` atualizado com novos cursos e IDs únicos.
     """
     url_padrao_trilha = 'https://app.datacamp.com/learn/courses/'
     
@@ -127,9 +128,10 @@ def atualizar_cursos_com_ids(cursos_atualizados_datacamp, maedev_df, col_nome_cu
 
 
     # Itera cada coluna unica em cursos atualizados(apenas combinacoes unicas), depois acessa o valor nas colunas nome_curso e Duração
-    for _, row in cursos_atualizados_datacamp[[col_nome_curso_atualizada, 'Duração']].drop_duplicates().iterrows():
+    for _, row in cursos_atualizados_datacamp[[col_nome_curso_atualizada, 'Duração', 'xp_curso']].iterrows():
         curso = row[col_nome_curso_atualizada]
         duracao = row['Duração']
+        XP_do_curso = row['xp_curso']
 
         #Se esse curso não está incluso no maedev, adicona ele a lista de novos cursos
         if curso not in maedev_df[col_df_maedev[1]].values:
@@ -139,6 +141,7 @@ def atualizar_cursos_com_ids(cursos_atualizados_datacamp, maedev_df, col_nome_cu
                 col_df_maedev[1]: curso,
                 col_df_maedev[2]: duracao,
                 col_df_maedev[3]: url_padrao_trilha + "-".join(curso.lower().split()),
+                col_df_maedev[4]: XP_do_curso,
             })
             print(f"✅ Novo curso adicionado: {curso} (id = {ultimo_id})")
 
@@ -153,7 +156,7 @@ def atualizar_cursos_com_ids(cursos_atualizados_datacamp, maedev_df, col_nome_cu
     return maedev_df
 
 #Para associar as trilhas com os cursos/ gerar associações
-def gerar_trilhas_tem_cursos(cliente, id_key_google_sheets=ID_DA_PLANILHA_GOOGLE_SHEETS, pasta_trilhas=PASTA_TRILHAS):
+def gerar_trilhas_tem_cursos_teste(cliente, id_key_google_sheets=ID_DA_PLANILHA_GOOGLE_SHEETS, pasta_trilhas=ut.PASTA_TRILHAS):
     """
     Gera a sheet 'Trilhas_tem_Cursos' na planilha Google especificada pelo ID, associando cada trilha aos cursos correspondentes.
 
@@ -204,10 +207,11 @@ def gerar_trilhas_tem_cursos(cliente, id_key_google_sheets=ID_DA_PLANILHA_GOOGLE
             continue
 
         caminho = os.path.join(pasta_trilhas, nome_arquivo)
+        print("Caminho: ", caminho)
         df = pd.read_excel(caminho)
 
         # Extrai os nomes da trilha e cursos
-        nome_trilha = str(df['trilha'].iloc[0]).strip()
+        nome_trilha = str(df['Trilha'].iloc[0]).strip()
 
         # Recupera o id_trilha
         linha_trilha = df_trilhas[df_trilhas['nome_trilha'].str.strip() == nome_trilha]
@@ -216,7 +220,7 @@ def gerar_trilhas_tem_cursos(cliente, id_key_google_sheets=ID_DA_PLANILHA_GOOGLE
             continue
         id_trilha = int(linha_trilha['id_trilha'].values[0])
 
-        for nome_curso in df['curso'].unique():
+        for nome_curso in df['Curso'].unique():
             nome_curso = str(nome_curso).strip()
             linha_curso = df_cursos[df_cursos['nome_curso'].str.strip() == nome_curso]
 
@@ -250,6 +254,7 @@ def gerar_trilhas_tem_cursos(cliente, id_key_google_sheets=ID_DA_PLANILHA_GOOGLE
     from gspread_dataframe import set_with_dataframe
     set_with_dataframe(aba_assoc, df_associacoes, include_index=False)
 
+    
 #Para marcar que um usuário x esteve presente ou ausente no evento y, também serve para atualizar o registro
 #Essa função cria se necessário e atualiza o registro caso já exista
 def registrar_participacao_evento(id_key_google_sheets, cliente, id_membro, id_evento, presenca=1):
