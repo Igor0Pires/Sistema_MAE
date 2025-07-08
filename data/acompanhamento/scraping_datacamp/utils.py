@@ -156,7 +156,7 @@ def atualizar_cursos_com_ids(cursos_atualizados_datacamp, maedev_df, col_nome_cu
     return maedev_df
 
 #Para associar as trilhas com os cursos/ gerar associações
-def gerar_trilhas_tem_cursos_teste(cliente, id_key_google_sheets=ID_DA_PLANILHA_GOOGLE_SHEETS, pasta_trilhas=ut.PASTA_TRILHAS):
+def gerar_trilhas_tem_cursos(cliente, id_key_google_sheets=ID_DA_PLANILHA_GOOGLE_SHEETS, pasta_trilhas=PASTA_TRILHAS):
     """
     Gera a sheet 'Trilhas_tem_Cursos' na planilha Google especificada pelo ID, associando cada trilha aos cursos correspondentes.
 
@@ -254,7 +254,7 @@ def gerar_trilhas_tem_cursos_teste(cliente, id_key_google_sheets=ID_DA_PLANILHA_
     from gspread_dataframe import set_with_dataframe
     set_with_dataframe(aba_assoc, df_associacoes, include_index=False)
 
-    
+
 #Para marcar que um usuário x esteve presente ou ausente no evento y, também serve para atualizar o registro
 #Essa função cria se necessário e atualiza o registro caso já exista
 def registrar_participacao_evento(id_key_google_sheets, cliente, id_membro, id_evento, presenca=1):
