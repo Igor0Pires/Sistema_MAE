@@ -1295,3 +1295,67 @@ def listar_trilhas_de_um_curso(id_key_google_sheets, cliente, id_curso):
     except Exception as e:
         print(f"Erro ao listar trilhas do curso {id_curso}: {e}")
         return pd.DataFrame()
+
+# função auxiliar para front?
+def trilha_resumo(id, cliente, *id_trilha):
+    """
+    Retorna um DataFrame com resumos de cada trilha informada
+
+    Parâmetros:
+    -----------
+    id_key_google_sheets : str
+        ID da planilha Google Sheets.
+
+    cliente : gspread.Client
+        Cliente gspread autenticado.
+
+    *id_trilha : int, quantas ints quiser
+        ID da trilha para filtrar os cursos.
+
+    Retorno:
+    --------
+    pd.DataFrame
+        DataFrame com uma linha para cada trilha contendo suas respectivas:
+            id_trilha, nome, duração, xp, url. 
+    """
+
+    # forma do retorno
+    df_retorno = pd.DataFrame(columns=['id_trilha',
+                            'nome',
+                            'duracao', 
+                            'xp',
+                            'url'])
+
+    # carrega tabela auxiliar para cada id de trilha em *id_trilha
+
+    for i in range(len(id_trilha)):
+        k = id_trilha[i]
+        df_dados = listar_cursos_de_uma_trilha(id, cliente, k)
+        # error HANDLING:
+        if df_dados.empty: continue
+
+        # forçar float para int
+        df_dados['duracao'] = pd.to_numeric(df_dados['duracao'], errors='coerce').fillna(-1).astype(int)
+        df_dados['xp_curso'] = pd.to_numeric(df_dados['xp_curso'], errors='coerce').fillna(-1).astype(int)
+
+        # nova linha
+        df_aux = pd.DataFrame([{
+            'id_trilha':k,
+                'nome':'',
+                'duracao': df_dados['duracao'].sum(axis=0), 
+                'xp': df_dados['xp_curso'].sum(axis=0),
+                'url':''}])
+        
+        # monta o retorno iterativamente
+        df_retorno = pd.concat([df_retorno, df_aux], ignore_index=True)
+    
+    # tipagem
+    df_retorno.set_index('id_trilha', inplace=True, drop=False)
+    trilhas_df = listar_trilhas(id, cliente)
+    trilhas_df['id_trilha'] = pd.to_numeric(trilhas_df['id_trilha'], errors='coerce').fillna(-1).astype(int)
+
+    # pega as informações necessárias na tabela de trilhas para deixar o retorno mais legível
+    for id in df_retorno['id_trilha']:
+        df_retorno.loc[id,'nome'] = trilhas_df.iloc[id,1]
+        df_retorno.loc[id,'url'] = trilhas_df.iloc[id,2]
+    return df_retorno
