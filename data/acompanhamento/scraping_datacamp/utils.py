@@ -254,6 +254,58 @@ def gerar_trilhas_tem_cursos(cliente, id_key_google_sheets=ID_DA_PLANILHA_GOOGLE
     from gspread_dataframe import set_with_dataframe
     set_with_dataframe(aba_assoc, df_associacoes, include_index=False)
 
+def definir_prazo(id:str, cliente, prazo:str|pd.Timestamp, id_trilha:int, id_curso:int=-1):
+    """
+    define um prazo para uma trilha inteira ou um curso de uma trilha
+    Parâmetros:
+    -----------
+    id_key_google_sheets : str
+        ID da planilha Google Sheets.
+
+    cliente : gspread.Client
+        Cliente gspread autenticado.
+
+    prazo : str ou pd.Timestamp
+        data para concluir o curso
+
+    id_trilha : int
+        Trilha que terá seu prazo definido
+
+    id_curso : int | opcional
+        Curso da trilha que terá seu prazo definido
+        O padrão é todos
+    Retorno:
+    --------
+    None
+    """
+
+
+    planilha = cliente.open_by_key(id)
+    try:
+        # Lê associação trilhas -> cursos
+        aba_assoc = planilha.worksheet('trilhas_tem_cursos')
+        df_assoc = get_as_dataframe(aba_assoc).dropna(how='all')
+
+        # Filtra associações para o id_trilha
+        df_assoc['id_trilha'] = pd.to_numeric(df_assoc['id_trilha'], errors='coerce').fillna(-1).astype(int)
+        df_assoc['data_final_para_assistir'] = pd.to_datetime(df_assoc['data_final_para_assistir'], errors='coerce').fillna('')
+        df_assoc['id_curso'] = pd.to_numeric(df_assoc['id_curso'], errors='coerce').fillna(-1).astype(int)
+    except Exception as e:
+        print(f"Erro ao ler df: {e}")
+        return None
+    # ajusta os indices
+    df_assoc.set_index(['id_trilha', 'id_curso'], inplace=True)
+    # muda o comportamento dependendo se id_curso foi passado ou não
+    if id_curso==-1:
+        df_assoc.loc[id_trilha, 'data_final_para_assistir'] = pd.to_datetime(prazo)
+    else:
+        df_assoc.loc[(id_trilha, id_curso), 'data_final_para_assistir'] = pd.to_datetime(prazo)
+    df_assoc.reset_index(inplace=True)
+    
+    # salva
+    aba_assoc.clear()
+    set_with_dataframe(aba_assoc, df_assoc, include_index=False)
+    return None
 
 #Para marcar que um usuário x esteve presente ou ausente no evento y, também serve para atualizar o registro
 #Essa função cria se necessário e atualiza o registro caso já exista
